@@ -4,20 +4,21 @@
     <meta charset="UTF-8">
     <title>Чат с реакциями</title>
     <style>
-        body { font-family: sans-serif; margin: 20px; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        body { font-family: sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f9f9f9; }
         
-        /* Блок входа */
-        .login-box { text-align: center; border: 1px solid #ccc; padding: 20px; border-radius: 5px; width: 300px; }
-        input, button { padding: 10px; margin: 10px 0; width: 100%; box-sizing: border-box; }
+        .login-box { text-align: center; border: 1px solid #ccc; padding: 20px; border-radius: 5px; width: 300px; background: white; }
+        .login-box input, .login-box button { padding: 10px; margin: 10px 0; width: 100%; box-sizing: border-box; }
         
-        /* Блок чата (изначально скрыт) */
-        #chat-wrap { display: none; width: 600px; margin: 0 auto; }
-        #messages { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; margin-bottom: 10px; list-style: none; }
-        .msg-item { margin-bottom: 15px; padding: 5px; border-bottom: 1px dashed #eee; }
+        #chat-wrap { display: none; width: 600px; background: white; border: 1px solid #ccc; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        #messages { border: 1px solid #eee; height: 300px; overflow-y: scroll; padding: 10px; margin-bottom: 10px; list-style: none; }
+        
+        .msg-item { margin-bottom: 15px; padding: 5px; border-bottom: 1px dashed #eee; text-align: left; }
         .system-item { margin-bottom: 15px; padding: 5px; color: #888; font-style: italic; text-align: center; list-style: none; }
-        .reactions { margin-top: 5px; }
-        .react-btn { cursor: pointer; background: none; border: none; font-size: 16px; margin-right: 5px; }
+        
+        .reactions { margin-top: 5px; display: flex; flex-direction: row; justify-content: flex-start; align-items: center; }
+        .react-btn { cursor: pointer; background: none; border: none; font-size: 16px; margin-right: 10px; padding: 2px 5px; display: inline-block; width: auto; }
         .count { font-size: 12px; color: #666; }
+        
         #form { display: flex; }
         #input { flex-grow: 1; padding: 10px; }
         #form button { padding: 10px; width: auto; margin: 0; }
@@ -25,7 +26,6 @@
 </head>
 <body>
 
-    <!-- ФОРМА ВХОДА -->
     <div id="login-area" class="login-box">
         <h2>Войти в чат</h2>
         <form id="login-form">
@@ -34,7 +34,6 @@
         </form>
     </div>
 
-    <!-- ИНТЕРФЕЙС ЧАТА -->
     <div id="chat-wrap">
         <h3 id="chat-title"></h3>
         <ul id="messages"></ul>
@@ -60,27 +59,41 @@
         const messages = document.getElementById('messages');
         const myReactions = {};
 
-        // Обработка входа
         loginForm.addEventListener('submit', (e) => {
-            e.preventDefault(); // Блокируем перезагрузку страницы и изменение URL
+            e.preventDefault(); 
             username = usernameInput.value.trim();
 
             if (username) {
-                // Скрываем форму входа, показываем чат
-                document.body.style.alignItems = 'flex-start';
                 loginArea.style.display = 'none';
                 chatWrap.style.display = 'block';
                 chatTitle.innerText = `Вы зашли как: ${username}`;
-
-                // Подключаем сокет ТОЛЬКО после ввода имени
                 initSocket();
             }
         });
 
+        function renderMessage(msg) {
+            const item = document.createElement('li');
+            item.className = 'msg-item';
+            item.id = msg.id;
+            
+            const thumbsUp = msg.reactions && msg.reactions['👍'] ? msg.reactions['👍'] : 0;
+            const heart = msg.reactions && msg.reactions['❤️'] ? msg.reactions['❤️'] : 0;
+            const laugh = msg.reactions && msg.reactions['😂'] ? msg.reactions['😂'] : 0;
+
+            item.innerHTML = `
+                <strong>${msg.username}:</strong> <span>${msg.text}</span>
+                <div class="reactions">
+                    <button class="react-btn" onclick="sendReaction('${msg.id}', '👍')">👍 <span class="count">${thumbsUp}</span></button>
+                    <button class="react-btn" onclick="sendReaction('${msg.id}', '❤️')">❤️ <span class="count">${heart}</span></button>
+                    <button class="react-btn" onclick="sendReaction('${msg.id}', '😂')">😂 <span class="count">${laugh}</span></button>
+                </div>
+            `;
+            messages.appendChild(item);
+        }
+
         function initSocket() {
             socket = io({ transports: ['websocket'] });
 
-            // Говорим серверу, как нас зовут (для уведомления)
             socket.emit('user joined', username);
 
             form.addEventListener('submit', (e) => {
@@ -91,19 +104,14 @@
                 }
             });
 
+            socket.on('chat history', (history) => {
+                messages.innerHTML = '';
+                history.forEach(msg => renderMessage(msg));
+                messages.scrollTop = messages.scrollHeight;
+            });
+
             socket.on('chat message', (msg) => {
-                const item = document.createElement('li');
-                item.className = 'msg-item';
-                item.id = msg.id;
-                item.innerHTML = `
-                    <strong>${msg.username}:</strong> <span>${msg.text}</span>
-                    <div class="reactions">
-                        <button class="react-btn" onclick="sendReaction('${msg.id}', '👍')">👍 <span class="count">0</span></button>
-                        <button class="react-btn" onclick="sendReaction('${msg.id}', '❤️')">❤️ <span class="count">0</span></button>
-                        <button class="react-btn" onclick="sendReaction('${msg.id}', '😂')">😂 <span class="count">0</span></button>
-                    </div>
-                `;
-                messages.appendChild(item);
+                renderMessage(msg);
                 messages.scrollTop = messages.scrollHeight;
             });
 
