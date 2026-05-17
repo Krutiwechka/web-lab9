@@ -1,0 +1,21 @@
+# Simple WebSocket Chat with Reactions
+
+Простой веб-чат в реальном времени с возможностью добавления реакций (эмодзи) на сообщения. Проект выполнен в рамках лабораторной работы с использованием Node.js, Express и Socket.IO.
+
+## Функционал
+* Авторизация по имени пользователя через форму на главной странице.
+* Обмен сообщениями в реальном времени без перезагрузки страницы.
+* Добавление реакций (👍, ❤️, 😂) к сообщениями.
+* Защита от бесконечного накручивания реакций от одного пользователя.
+
+## Технологический стек
+* **Backend:** Node.js, Express
+* **Real-time:** Socket.IO
+* **Frontend:** EJS (Embedded JavaScript templates), HTML5, CSS3
+
+## Локальный запуск
+
+1. Клонируйте репозиторий:
+   ```bash
+   git clone [https://github.com/Krutiwechka/websocket-chat.git](https://github.com/Krutiwechka/websocket-chat.git)
+   cd websocket-chat
