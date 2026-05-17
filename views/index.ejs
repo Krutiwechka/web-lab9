@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-box { text-align: center; border: 1px solid #ccc; padding: 20px; border-radius: 5px; }
+        input, button { padding: 10px; margin: 10px 0; width: 100%; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>Войти в чат</h2>
+        <form action="/chat" method="GET">
+            <input type="text" name="username" placeholder="Ваше имя" required>
+            <button type="submit">Войти</button>
+        </form>
+    </div>
+</body>
+</html>
