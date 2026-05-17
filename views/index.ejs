@@ -12,6 +12,10 @@
         #chat-wrap { display: none; width: 600px; background: white; border: 1px solid #ccc; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         #messages { border: 1px solid #eee; height: 300px; overflow-y: scroll; padding: 10px; margin-bottom: 10px; list-style: none; }
         
+        .chat-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f5f5f5; margin-bottom: 15px; padding-bottom: 5px; }
+        .chat-header h3 { margin: 0; }
+        .online-status { font-size: 14px; color: #2ecc71; font-weight: bold; }
+        
         .msg-item { margin-bottom: 15px; padding: 5px; border-bottom: 1px dashed #eee; text-align: left; }
         .system-item { margin-bottom: 15px; padding: 5px; color: #888; font-style: italic; text-align: center; list-style: none; }
         
@@ -35,8 +39,13 @@
     </div>
 
     <div id="chat-wrap">
-        <h3 id="chat-title"></h3>
+        <div class="chat-header">
+            <h3 id="chat-title"></h3>
+            <div class="online-status">В сети: <span id="online-counter">0</span></div>
+        </div>
+        
         <ul id="messages"></ul>
+        
         <form id="form">
             <input id="input" autocomplete="off" placeholder="Сообщение..." required />
             <button>Отправить</button>
@@ -53,6 +62,7 @@
         const loginArea = document.getElementById('login-area');
         const chatWrap = document.getElementById('chat-wrap');
         const chatTitle = document.getElementById('chat-title');
+        const onlineCounter = document.getElementById('online-counter');
         
         const form = document.getElementById('form');
         const input = document.getElementById('input');
@@ -102,6 +112,10 @@
                     socket.emit('chat message', { username: username, text: input.value });
                     input.value = '';
                 }
+            });
+
+            socket.on('online count', (count) => {
+                onlineCounter.innerText = count;
             });
 
             socket.on('chat history', (history) => {

@@ -20,6 +20,9 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
     let currentUsername = 'Аноним';
 
+    // Отправляем обновленный счетчик онлайна ВСЕМ пользователям
+    io.emit('online count', io.engine.clientsCount);
+
     socket.on('user joined', (username) => {
         currentUsername = username;
         socket.emit('chat history', messagesHistory);
@@ -52,6 +55,7 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         io.emit('system notification', `${currentUsername} покинул чат`);
+        io.emit('online count', io.engine.clientsCount);
     });
 });
 
