@@ -17,5 +17,5 @@
 
 1. Клонируйте репозиторий:
    ```bash
-   git clone [https://github.com/Krutiwechka/websocket-chat.git](https://github.com/Krutiwechka/websocket-chat.git)
-   cd websocket-chat
+   git clone [https://github.com/Krutiwechka/web-lab9.git](https://github.com/Krutiwechka/web-lab9.git)
+   cd web-lab9
